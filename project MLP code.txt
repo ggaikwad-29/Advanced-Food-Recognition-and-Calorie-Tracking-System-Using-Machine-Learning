@@ -1,0 +1,123 @@
+import kagglehub
+
+# Download latest version
+path = kagglehub.dataset_download("kkhandekar/calories-in-food-items-per-100-grams")
+
+print("Path to dataset files:", path)
+
+# Assuming path points to the folder containing the dataset
+dataset_path = path  # KaggleHub download location
+
+# Check the contents of the dataset folder
+print(os.listdir(dataset_path))
+n
+# Load the dataset (Replace 'calories.csv' with the actual file name in the path)
+new_data = pd.read_csv(os.path.join(dataset_path, 'calories.csv'))  # Using the correct CSV file
+
+# Display the first few rows of the new dataset
+print(new_data.head())
+
+
+# Clean the 'Cals_per100grams' column to remove non-numeric characters and convert to float
+new_data['Calories_per_100g'] = new_data['Cals_per100grams'].str.extract('(\d+)', expand=False).astype(float)
+
+# Remove rows with missing or invalid calorie values (optional but helps with clean data)
+new_data = new_data.dropna(subset=['Calories_per_100g'])
+
+# Encode food names (convert categorical variable to numerical)
+label_encoder = LabelEncoder()
+new_data['food_label'] = label_encoder.fit_transform(new_data['FoodItem'])
+
+# Generate random portion sizes between 50g and 500g
+new_data["portion_size"] = np.random.randint(50, 500, size=len(new_data))
+
+# Define features (food_label & portion_size) and target (calories)
+X = new_data[['food_label', 'portion_size']].values
+y = new_data['Calories_per_100g'].values  # Target is the cleaned calorie column
+
+# Standardize input data
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Split the data into training & testing sets
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+
+
+from tensorflow.keras.callbacks import EarlyStopping  # Import EarlyStopping
+
+# Create an MLP model for calorie prediction
+mlp_model = Sequential([
+    Dense(64, activation='relu', input_shape=(X_train.shape[1],)),
+    Dense(32, activation='relu'),
+    Dropout(0.3),  # Dropout to prevent overfitting
+    Dense(16, activation='relu'),
+    Dense(1, activation='linear')  # Regression output
+])
+
+# Compile the model with Mean Squared Error loss (for regression)
+mlp_model.compile(optimizer='adam', loss='mean_squared_error', metrics=['mae'])
+
+# Set up early stopping to prevent overfitting and save the best model
+early_stopping = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
+
+# Train the model
+history = mlp_model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=50, batch_size=32, callbacks=[early_stopping])
+
+# Evaluate the model on the test set
+test_loss, test_mae = mlp_model.evaluate(X_test, y_test)
+print(f"Test Loss: {test_loss}, Test MAE: {test_mae}")
+
+
+from sklearn.metrics import r2_score, mean_squared_error  # Import necessary metrics
+
+# Predicting on the test set
+y_pred = mlp_model.predict(X_test)
+
+# Calculate R²
+r2 = r2_score(y_test, y_pred)
+
+# Calculate RMSE
+rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+
+print(f"R²: {r2:.4f}")
+print(f"RMSE: {rmse:.2f}")
+
+
+# Save the trained model
+mlp_model.save("calorie_estimator_mlp.h5")
+
+# Load the trained model later if needed
+loaded_model = tf.keras.models.load_model("calorie_estimator_mlp.h5")
+
+# Check if the model was loaded successfully
+loaded_model.summary()
+
+
+# Example: Predict calories for a "Pizza" with 150 grams portion size
+food_name = "Pizza"
+portion_size = 150
+
+# Convert the food name to the encoded label
+food_label = label_encoder.transform([food_name])[0]
+
+# Prepare the input data
+input_data = scaler.transform([[food_label, portion_size]])
+
+# Predict the calories
+predicted_calories = loaded_model.predict(input_data)
+print(f"Predicted Calories for {portion_size}g of {food_name}: {predicted_calories[0][0]:.2f} kcal")
+
+
+import matplotlib.pyplot as plt
+
+# Plot training and validation loss
+plt.plot(history.history['loss'], label='Train Loss')
+plt.plot(history.history['val_loss'], label='Validation Loss')
+plt.xlabel('Epochs')
+plt.ylabel('Loss')
+plt.title('Training vs Validation Loss')
+plt.legend()
+plt.show()
+
+
+### Step 5 : Building RNN Model 
