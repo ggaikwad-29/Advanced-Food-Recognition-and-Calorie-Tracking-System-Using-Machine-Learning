@@ -1,28 +1,53 @@
 # Advanced-Food-Recognition-and-Calorie-Tracking-System-Using-Machine-Learning
-Developed an end-to-end ML system for food recognition and calorie tracking using CNNs, MLPs, and RNNs. Achieved 73% classification accuracy and reduced calorie estimation error to 164 kcal MAE. Deployed via Flask APIs and Streamlit for real-time user interaction.
-## 📖 Description
-Traditional calorie tracking is error-prone and time-consuming. This system automates the process using:
-- **CNN (MobileNetV2)** for food classification (73.08% test accuracy on Food-101).
-- **MLP regression model** for calorie estimation (Mean Absolute Error of 164 kcal).
-- **RNN (LSTM)** for dietary trend prediction (120 kcal MAE on synthetic intake data).
-- **Flask APIs & Streamlit UI** for real-time user interaction, deployed on Heroku with <2s latency.
+📌 Overview
 
----
+This project implements an end-to-end machine learning pipeline for food image recognition and calorie estimation. The system uses convolutional neural networks (CNNs) trained with TensorFlow/Keras to classify food images and estimate nutritional values via real-time database queries. The trained model is exposed through a REST API for scalable inference.
 
-## 🚀 Features
-- Food image recognition from datasets like Food-101 & UEC-Food256.
-- Calorie estimation integrated with USDA nutritional data.
-- Dietary trend analysis using recurrent networks.
-- Scalable deployment with Flask APIs and Streamlit front-end.
-- Modular design for easy upgrades and integration.
+📊 Dataset
 
----
+Public food image datasets (e.g., Food-101 and custom curated samples)
 
-## 🛠 Tech Stack
-- **Languages:** Python  
-- **Libraries:** TensorFlow, Keras, scikit-learn, OpenCV, NumPy, Pandas, Streamlit  
-- **Tools:** Google Colab (GPU), Flask, Docker-ready deployment  
-- **Datasets:** Food-101, UEC-Food256, USDA API  
+Multi-class classification across diverse food categories
+
+Images preprocessed using resizing, normalization, and augmentation techniques
+
+🧠 Model Architecture
+
+CNN-based architecture implemented in TensorFlow/Keras
+
+Transfer learning with pre-trained backbones and custom classifier heads
+
+Ensemble modeling to improve robustness and classification accuracy
+
+⚙️ Training & Evaluation
+
+Optimizer: Adam
+
+Loss: Categorical Cross-Entropy
+
+Batch training with data augmentation
+
+Evaluation metrics: Accuracy and class-wise performance analysis
+
+Result:
+
+Achieved ~40% accuracy improvement over baseline single-model approach through ensemble learning and hyperparameter tuning
+
+🚀 Inference & Deployment
+
+Deployed trained model as a RESTful API using Flask/FastAPI
+
+Supports real-time image uploads and predictions
+
+Modular architecture allows easy integration with front-end or mobile applications
+
+🔍 Key Learnings
+
+Practical experience in model training, tuning, and evaluation
+
+Designing ML systems for real-time inference
+
+Handling end-to-end ML lifecycle from data ingestion to deployment
 
 ---
 
